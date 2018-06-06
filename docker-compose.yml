@@ -1,0 +1,33 @@
+version: '2'
+services:
+  zookeeper:
+    image: zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+      - "1099:1099"
+    environment:
+      KAFKA_VERSION: 0.9.0
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.3.100
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      JMX_PORT: 1099
+      LOG4J_LOGGER_KAFKA_AUTHORIZER_LOGGER: ERROR
+    depends_on:
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Volumes/Data/Code/DB/Kafka/kafka_1:/kafka
+
+  kafka-manager:
+    image: mumu/kafka-manager
+    ports:
+      - "9000:9000"
+    depends_on:
+      - kafka
+    environment:
+      ZK_HOSTS: zookeeper:2181
